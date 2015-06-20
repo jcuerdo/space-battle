@@ -31,13 +31,13 @@ public class main : MonoBehaviour {
 	{
 		if (Time.timeSinceLevelLoad - this.last_enemy > time_between_enemy) {
 			GameObject enemy = GameObject.Find("enemy");
-			Vector2 new_enemy_position = enemy.rigidbody2D.position;
+			Vector2 new_enemy_position = enemy.GetComponent<Rigidbody2D>().position;
 
 			float x = Random.Range( -x_limit,x_limit );
 			new_enemy_position.x = x;
 			GameObject new_enemy = (GameObject) Instantiate( enemy,new_enemy_position, Quaternion.identity );
-			new_enemy.rigidbody2D.velocity = Vector2.up * (-this.enemy_speed);
-			new_enemy.collider2D.isTrigger = false;
+			new_enemy.GetComponent<Rigidbody2D>().velocity = Vector2.up * (-this.enemy_speed);
+			new_enemy.GetComponent<Collider2D>().isTrigger = false;
 			Texture2D texture = Resources.Load("enemigo") as Texture2D;
 			SpriteRenderer[] components = new_enemy.GetComponents<SpriteRenderer>();
 			foreach(SpriteRenderer c in components)
@@ -53,13 +53,13 @@ public class main : MonoBehaviour {
 	{
 		if (Time.timeSinceLevelLoad - this.last_rock > time_between_rock) {
 			GameObject rock = GameObject.Find("rock");
-			Vector2 new_rock_position = rock.rigidbody2D.position;
+			Vector2 new_rock_position = rock.GetComponent<Rigidbody2D>().position;
 			
 			float x = Random.Range( -x_limit,x_limit );
 			new_rock_position.x = x;
 			GameObject new_rock = (GameObject) Instantiate( rock,new_rock_position, Quaternion.identity );
-			new_rock.rigidbody2D.velocity = Vector2.up * (-this.enemy_speed);
-			new_rock.collider2D.isTrigger = false;
+			new_rock.GetComponent<Rigidbody2D>().velocity = Vector2.up * (-this.enemy_speed);
+			new_rock.GetComponent<Collider2D>().isTrigger = false;
 			Texture2D texture = Resources.Load("rock") as Texture2D;
 			SpriteRenderer[] components = new_rock.GetComponents<SpriteRenderer>();
 			foreach(SpriteRenderer c in components)
@@ -105,8 +105,8 @@ public class main : MonoBehaviour {
 		Vector2 fire_position = new Vector2 ( plane_position.x,-0.7f );
 		GameObject fire_bullet = GameObject.Find("fire");
 		GameObject new_fire = (GameObject) Instantiate( fire_bullet,fire_position, Quaternion.identity );
-		new_fire.rigidbody2D.velocity = Vector2.up;
-		new_fire.rigidbody2D.velocity = new_fire.rigidbody2D.velocity * this.fire_speed;
+		new_fire.GetComponent<Rigidbody2D>().velocity = Vector2.up;
+		new_fire.GetComponent<Rigidbody2D>().velocity = new_fire.GetComponent<Rigidbody2D>().velocity * this.fire_speed;
 	}
 	
 	void OnTriggerEnter2D(Collider2D collider) 
@@ -126,7 +126,7 @@ public class main : MonoBehaviour {
 			{
 				c.sprite = Sprite.Create(texture,c.sprite.rect,new Vector2(0.5f,0.5f));
 			}
-			transform.rigidbody2D.position = new Vector2(10f,10f);
+			//transform.GetComponent<Rigidbody2D>().position = new Vector2(10f,10f);
 		} 
 		else {
 			Application.LoadLevel(0);
@@ -143,6 +143,6 @@ public class main : MonoBehaviour {
 		{
 			c.sprite = Sprite.Create(texture,c.sprite.rect,new Vector2(0.5f,0.5f));
 		}
-		transform.rigidbody2D.position = new Vector2(10f,10f);
+		//transform.GetComponent<Rigidbody2D>().position = new Vector2(10f,10f);
 	}
 }
