@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class main : MonoBehaviour {
@@ -119,16 +119,14 @@ public class main : MonoBehaviour {
 	private void receibeAttack(Collider2D collider){
 		this.destroyEnemy(collider);
 		this.lives--;
-		if (lives >= 0) {
-			Texture2D texture = Resources.Load("avion" + this.lives) as Texture2D;
-			SpriteRenderer[] components = transform.GetComponents<SpriteRenderer>();
-			foreach(SpriteRenderer c in components)
-			{
-				c.sprite = Sprite.Create(texture,c.sprite.rect,new Vector2(0.5f,0.5f));
-			}
-			//transform.GetComponent<Rigidbody2D>().position = new Vector2(10f,10f);
+		if (lives > 0) {
+			GameObject text = GameObject.Find("lives");
+			text.GetComponent<GUIText>().text = lives + "";
+			transform.localScale = new Vector2(transform.localScale.x + 0.05f,transform.localScale.y + 0.05f);
 		} 
 		else {
+			GetComponent<Rigidbody2D>().transform.rotation = new Quaternion(1,1,1,1);
+			GetComponent<Rigidbody2D>().velocity = new Vector2(10,15);
 			Application.LoadLevel(0);
 		}
 
@@ -136,13 +134,5 @@ public class main : MonoBehaviour {
 
 	private void destroyEnemy(Collider2D collider){
 
-		string collider_original_name = collider.name.Replace("(Clone)","");
-		Texture2D texture = Resources.Load(collider_original_name + "_killed") as Texture2D;
-		SpriteRenderer[] components = collider.GetComponents<SpriteRenderer>();
-		foreach(SpriteRenderer c in components)
-		{
-			c.sprite = Sprite.Create(texture,c.sprite.rect,new Vector2(0.5f,0.5f));
-		}
-		//transform.GetComponent<Rigidbody2D>().position = new Vector2(10f,10f);
 	}
 }
