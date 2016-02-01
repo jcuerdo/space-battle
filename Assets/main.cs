@@ -12,6 +12,8 @@ public class main : MonoBehaviour {
 	private int enemy_speed = 7;
 	private int rock_speed = 7;
 	private int lives = 3;
+	private bool started = false;
+	private bool over = false;
 	// Use this for initialization
 	void Start () {
 		this.last_enemy = Time.timeSinceLevelLoad;
@@ -20,10 +22,13 @@ public class main : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		this.movement();
-		this.fire();
-		this.createEnemy();
-		this.createRock();
+		if(started){
+			this.movement();
+			this.fire();
+			this.createEnemy();
+			this.createRock();
+		}
+
 	}
 
 
@@ -117,7 +122,6 @@ public class main : MonoBehaviour {
 	}
 
 	private void receibeAttack(Collider2D collider){
-		this.destroyEnemy(collider);
 		this.lives--;
 		if (lives > 0) {
 			GameObject text = GameObject.Find("lives");
@@ -127,12 +131,65 @@ public class main : MonoBehaviour {
 		else {
 			GetComponent<Rigidbody2D>().transform.rotation = new Quaternion(1,1,1,1);
 			GetComponent<Rigidbody2D>().velocity = new Vector2(10,15);
-			Application.LoadLevel(0);
+			this.over = true;
 		}
 
 	}
 
-	private void destroyEnemy(Collider2D collider){
+	void OnGUI()
+	{
+		GUIStyle text_style =  new GUIStyle();
+		text_style.fontSize = Screen.width/20;
+		text_style.alignment = TextAnchor.MiddleCenter;
+		text_style.normal.textColor = Color.white;
+		
+		
+		GUIStyle button_style = new GUIStyle(GUI.skin.button);
+		button_style.fontSize = Screen.width/20;
+		
+		Texture2D left = (Texture2D)(Resources.Load( "left" ));
+		Texture2D right = (Texture2D)(Resources.Load( "right" ));
+		if ( !this.started )
+		{
+			int best_score = PlayerPrefs.GetInt( "best_score" );
+			int last_score = PlayerPrefs.GetInt( "last_score" );
+			
+			GUI.Box(new Rect (Screen.width/4,Screen.height/4 - 5, Screen.width/2 , Screen.height/2 ), "" );
+			GUI.Box(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4,Screen.width/2 - Screen.width/6,Screen.height/8), "Best: " + best_score + " Last: " + last_score, text_style );
+			if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4 + (Screen.height/8) ,Screen.width/2 - Screen.width/6,Screen.height/8), "Start Game",button_style )) 
+			{
+				this.started = true;
+			}
+			if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4 + (Screen.height/8*2) + 20,Screen.width/2 - Screen.width/6,Screen.height/8), "Quit",button_style )) 
+			{
+				Application.Quit();
+			}
+		}
+		else
+		{
+			if( this.over )
+			{
+				this.setScoreRecord();
 
+				if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/2 - Screen.height/6,Screen.width/2 - Screen.width/6,Screen.height/8), "Back to menu",button_style )) 
+				{
+					Application.LoadLevel(0);
+				}
+			}
+		}
 	}
+
+	private void setScoreRecord()
+	{
+		int best_score = PlayerPrefs.GetInt( "best_score" );
+		GameObject pointsTxt = GameObject.Find("points");
+		int points = int.Parse(pointsTxt.GetComponent<GUIText>().text);
+
+		if ( points >= best_score )
+		{
+			PlayerPrefs.SetInt( "best_score", points);
+		}
+		PlayerPrefs.SetInt( "last_score", points );
+	}
+
 }

@@ -49,6 +49,7 @@
      <Compile Include="Assets\enemy.cs" />
      <Compile Include="Assets\fire.cs" />
      <Compile Include="Assets\main.cs" />
+     <Compile Include="Assets\rock.cs" />
  <Reference Include="UnityEngine.Analytics">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
