@@ -34,7 +34,7 @@ public class main : MonoBehaviour {
 			this.createRock();
 		}
 		else{
-			ShowInterstitial()
+			ShowInterstitial();
 		}
 
 	}
