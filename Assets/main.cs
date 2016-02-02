@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using GoogleMobileAds.Api;
 
 public class main : MonoBehaviour {
 	private float scale = 15f;
@@ -14,10 +15,14 @@ public class main : MonoBehaviour {
 	private int lives = 3;
 	private bool started = false;
 	private bool over = false;
+	private BannerView bannerView;
+	private InterstitialAd interstitial;
 	// Use this for initialization
 	void Start () {
 		this.last_enemy = Time.timeSinceLevelLoad;
 		this.last_rock = Time.timeSinceLevelLoad;
+		//RequestBanner();
+		RequestBannerInter();
 	}
 	
 	// Update is called once per frame
@@ -27,6 +32,9 @@ public class main : MonoBehaviour {
 			this.fire();
 			this.createEnemy();
 			this.createRock();
+		}
+		else{
+			ShowInterstitial();
 		}
 
 	}
@@ -191,5 +199,47 @@ public class main : MonoBehaviour {
 		}
 		PlayerPrefs.SetInt( "last_score", points );
 	}
+
+	private void RequestBanner()
+	{
+
+		#if UNITY_ANDROID
+		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
+		#elif UNITY_IPHONE
+		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
+		#else
+		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
+		#endif
+
+		bannerView = new BannerView(adUnitId, AdSize.Banner, AdPosition.Bottom);
+		AdRequest request = new AdRequest.Builder().Build();
+		bannerView.LoadAd(request);
+
+	}
+
+	private void RequestBannerInter()
+	{
+		
+		#if UNITY_ANDROID
+		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
+		#elif UNITY_IPHONE
+		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
+		#else
+		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
+		#endif
+
+		interstitial = new InterstitialAd(adUnitId);
+		AdRequest request = new AdRequest.Builder().Build();
+		interstitial.LoadAd(request);
+	}
+
+	private void ShowInterstitial() { 
+		if (interstitial.IsLoaded()) { 
+			interstitial.Show(); 
+		}
+		
+	}
+
+
 
 }
