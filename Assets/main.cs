@@ -15,28 +15,27 @@ public class main : MonoBehaviour {
 	private int lives = 3;
 	private bool started = false;
 	private bool over = false;
-	private BannerView bannerView;
+	private BannerView bannerViewTop;
+	private BannerView bannerViewBottom;
 	private InterstitialAd interstitial;
+	private float showInterstitial = Random.Range( 0, 1 );
 	// Use this for initialization
 	void Start () {
 		this.last_enemy = Time.timeSinceLevelLoad;
 		this.last_rock = Time.timeSinceLevelLoad;
-		//RequestBanner();
+		RequestBanner();
 		RequestBannerInter();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if(started){
+			this.hideBanners();
 			this.movement();
 			this.fire();
 			this.createEnemy();
 			this.createRock();
 		}
-		else{
-			ShowInterstitial();
-		}
-
 	}
 
 
@@ -159,6 +158,8 @@ public class main : MonoBehaviour {
 		Texture2D right = (Texture2D)(Resources.Load( "right" ));
 		if ( !this.started )
 		{
+			this.ShowInterstitialRandom();
+			this.ShowBanners();
 			int best_score = PlayerPrefs.GetInt( "best_score" );
 			int last_score = PlayerPrefs.GetInt( "last_score" );
 			
@@ -178,7 +179,6 @@ public class main : MonoBehaviour {
 			if( this.over )
 			{
 				this.setScoreRecord();
-
 				if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/2 - Screen.height/6,Screen.width/2 - Screen.width/6,Screen.height/8), "Back to menu",button_style )) 
 				{
 					Application.LoadLevel(0);
@@ -202,7 +202,6 @@ public class main : MonoBehaviour {
 
 	private void RequestBanner()
 	{
-
 		#if UNITY_ANDROID
 		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
 		#elif UNITY_IPHONE
@@ -211,15 +210,17 @@ public class main : MonoBehaviour {
 		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
 		#endif
 
-		bannerView = new BannerView(adUnitId, AdSize.Banner, AdPosition.Bottom);
+		bannerViewTop = new BannerView(adUnitId, AdSize.Banner, AdPosition.Top);
+		bannerViewBottom = new BannerView(adUnitId, AdSize.Banner, AdPosition.Bottom);
+	
 		AdRequest request = new AdRequest.Builder().Build();
-		bannerView.LoadAd(request);
+		bannerViewTop.LoadAd(request);
+		bannerViewBottom.LoadAd(request);
 
 	}
 
 	private void RequestBannerInter()
-	{
-		
+	{	
 		#if UNITY_ANDROID
 		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
 		#elif UNITY_IPHONE
@@ -233,13 +234,28 @@ public class main : MonoBehaviour {
 		interstitial.LoadAd(request);
 	}
 
+	private void ShowInterstitialRandom() { 
+		if(showInterstitial == 1){
+			Debug.Log(showInterstitial);
+			this.ShowInterstitial();
+		}	
+	}
+
 	private void ShowInterstitial() { 
 		if (interstitial.IsLoaded()) { 
 			interstitial.Show(); 
-		}
-		
+		}	
 	}
 
+	private void hideBanners() { 
+		bannerViewTop.Hide();
+		bannerViewBottom.Hide ();
+	}
+
+	private void ShowBanners() { 
+		bannerViewTop.Show();
+		bannerViewBottom.Show();
+	}
 
 
 }
