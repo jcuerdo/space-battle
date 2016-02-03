@@ -28,7 +28,7 @@ public class main : MonoBehaviour {
 		RequestBannerInter();
 	}
 	
-	// Update is called once per frame
+
 	void Update () {
 		if(started){
 			this.hideBanners();
@@ -38,8 +38,7 @@ public class main : MonoBehaviour {
 			this.createRock();
 		}
 	}
-
-
+	
 	private void createEnemy()
 	{
 		if (Time.timeSinceLevelLoad - this.last_enemy > time_between_enemy) {
