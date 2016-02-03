@@ -18,11 +18,12 @@ public class main : MonoBehaviour {
 	private BannerView bannerViewTop;
 	private BannerView bannerViewBottom;
 	private InterstitialAd interstitial;
-	private float showInterstitial = Random.Range( 0, 1 );
-	// Use this for initialization
+	private float showInterstitial;
+
 	void Start () {
 		this.last_enemy = Time.timeSinceLevelLoad;
 		this.last_rock = Time.timeSinceLevelLoad;
+		this.showInterstitial = Random.Range( 0, 1 );
 		RequestBanner();
 		RequestBannerInter();
 	}
