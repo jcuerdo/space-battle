@@ -71,6 +71,8 @@
      <Compile Include="Assets\GoogleMobileAds\Platforms\iOS\IOSBannerClient.cs" />
      <Compile Include="Assets\GoogleMobileAds\Platforms\iOS\IOSInterstitialClient.cs" />
      <Compile Include="Assets\GoogleMobileAds\Platforms\iOS\MonoPInvokeCallbackAttribute.cs" />
+     <Compile Include="Assets\admob.cs" />
+     <Compile Include="Assets\controllol.cs" />
      <Compile Include="Assets\enemy.cs" />
      <Compile Include="Assets\fire.cs" />
      <Compile Include="Assets\main.cs" />

@@ -15,25 +15,22 @@ public class main : MonoBehaviour {
 	private int lives = 3;
 	private bool started = false;
 	private bool over = false;
-	private BannerView bannerViewTop;
-	private BannerView bannerViewBottom;
-	private InterstitialAd interstitial;
-	private float showInterstitial;
-
+	private AdMob admob = new AdMob();
+	private Controll controll = new Controll();
+	
 	void Start () {
 		this.last_enemy = Time.timeSinceLevelLoad;
 		this.last_rock = Time.timeSinceLevelLoad;
-		this.showInterstitial = Random.Range( 0, 1 );
-		RequestBanner();
-		RequestBannerInter();
+		this.admob.requestBanner();
+		this.admob.requestBannerInterstitial();
 	}
 	
-
+	
 	void Update () {
 		if(started){
-			this.hideBanners();
-			this.movement();
-			this.fire();
+			this.admob.hideBanners();
+			this.controll.movement(transform, scale, x_limit);
+			this.controll.fire(transform,fire_speed);
 			this.createEnemy();
 			this.createRock();
 		}
@@ -44,7 +41,7 @@ public class main : MonoBehaviour {
 		if (Time.timeSinceLevelLoad - this.last_enemy > time_between_enemy) {
 			GameObject enemy = GameObject.Find("enemy");
 			Vector2 new_enemy_position = enemy.GetComponent<Rigidbody2D>().position;
-
+			
 			float x = Random.Range( -x_limit,x_limit );
 			new_enemy_position.x = x;
 			GameObject new_enemy = (GameObject) Instantiate( enemy,new_enemy_position, Quaternion.identity );
@@ -58,9 +55,9 @@ public class main : MonoBehaviour {
 			}
 			this.last_enemy = Time.timeSinceLevelLoad;
 		}
-
+		
 	}
-
+	
 	private void createRock()
 	{
 		if (Time.timeSinceLevelLoad - this.last_rock > time_between_rock) {
@@ -82,44 +79,6 @@ public class main : MonoBehaviour {
 		}
 		
 	}
-
-	private void movement()
-	{
-		float x;
-		if (Application.platform != RuntimePlatform.Android){
-			x = Input.GetAxis("Horizontal") * scale * Time.deltaTime; 
-		}
-		else{
-			x = Input.acceleration.x;
-		}
-		if( Mathf.Abs(transform.position.x + x) < (x_limit) ){
-			transform.Translate(x, 0, 0); 
-		}
-	}
-
-	private void fire()
-	{
-		if( Input.GetMouseButtonDown(0) )
-		{
-			doFire();
-			return;
-		}
-		foreach (Touch touch in Input.touches) {
-			if (touch.phase == TouchPhase.Ended){
-				doFire();
-			}
-		}
-	}
-
-	private void doFire()
-	{
-		Vector2 plane_position = transform.position;
-		Vector2 fire_position = new Vector2 ( plane_position.x,-0.7f );
-		GameObject fire_bullet = GameObject.Find("fire");
-		GameObject new_fire = (GameObject) Instantiate( fire_bullet,fire_position, Quaternion.identity );
-		new_fire.GetComponent<Rigidbody2D>().velocity = Vector2.up;
-		new_fire.GetComponent<Rigidbody2D>().velocity = new_fire.GetComponent<Rigidbody2D>().velocity * this.fire_speed;
-	}
 	
 	void OnTriggerEnter2D(Collider2D collider) 
 	{
@@ -127,7 +86,7 @@ public class main : MonoBehaviour {
 			this.receibeAttack(collider);
 		}
 	}
-
+	
 	private void receibeAttack(Collider2D collider){
 		this.lives--;
 		if (lives > 0) {
@@ -140,9 +99,9 @@ public class main : MonoBehaviour {
 			GetComponent<Rigidbody2D>().velocity = new Vector2(10,15);
 			this.over = true;
 		}
-
+		
 	}
-
+	
 	void OnGUI()
 	{
 		GUIStyle text_style =  new GUIStyle();
@@ -158,8 +117,8 @@ public class main : MonoBehaviour {
 		Texture2D right = (Texture2D)(Resources.Load( "right" ));
 		if ( !this.started )
 		{
-			this.ShowInterstitialRandom();
-			this.ShowBanners();
+			this.admob.showInterstitial();
+			this.admob.showBanners();
 			int best_score = PlayerPrefs.GetInt( "best_score" );
 			int last_score = PlayerPrefs.GetInt( "last_score" );
 			
@@ -186,76 +145,19 @@ public class main : MonoBehaviour {
 			}
 		}
 	}
-
+	
 	private void setScoreRecord()
 	{
 		int best_score = PlayerPrefs.GetInt( "best_score" );
 		GameObject pointsTxt = GameObject.Find("points");
 		int points = int.Parse(pointsTxt.GetComponent<GUIText>().text);
-
+		
 		if ( points >= best_score )
 		{
 			PlayerPrefs.SetInt( "best_score", points);
 		}
 		PlayerPrefs.SetInt( "last_score", points );
 	}
-
-	private void RequestBanner()
-	{
-		#if UNITY_ANDROID
-		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
-		#elif UNITY_IPHONE
-		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
-		#else
-		string adUnitId = "ca-app-pub-6904186947817626/6737471590";
-		#endif
-
-		bannerViewTop = new BannerView(adUnitId, AdSize.Banner, AdPosition.Top);
-		bannerViewBottom = new BannerView(adUnitId, AdSize.Banner, AdPosition.Bottom);
-	
-		AdRequest request = new AdRequest.Builder().Build();
-		bannerViewTop.LoadAd(request);
-		bannerViewBottom.LoadAd(request);
-
-	}
-
-	private void RequestBannerInter()
-	{	
-		#if UNITY_ANDROID
-		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
-		#elif UNITY_IPHONE
-		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
-		#else
-		string adUnitId = "ca-app-pub-6904186947817626/8284077196";
-		#endif
-
-		interstitial = new InterstitialAd(adUnitId);
-		AdRequest request = new AdRequest.Builder().Build();
-		interstitial.LoadAd(request);
-	}
-
-	private void ShowInterstitialRandom() { 
-		if(showInterstitial == 1){
-			Debug.Log(showInterstitial);
-			this.ShowInterstitial();
-		}	
-	}
-
-	private void ShowInterstitial() { 
-		if (interstitial.IsLoaded()) { 
-			interstitial.Show(); 
-		}	
-	}
-
-	private void hideBanners() { 
-		bannerViewTop.Hide();
-		bannerViewBottom.Hide ();
-	}
-
-	private void ShowBanners() { 
-		bannerViewTop.Show();
-		bannerViewBottom.Show();
-	}
-
-
 }
+
+
