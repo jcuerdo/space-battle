@@ -5,8 +5,8 @@ public class AdMob{
 	private BannerView bannerViewTop;
 	private BannerView bannerViewBottom;
 	private InterstitialAd interstitial;
-	private string adUnitIdBanner        = "ca-app-pub-6904186947817626/6737471590";
-	private string adUnitIdInterstitial = "ca-app-pub-6904186947817626/8284077196";	
+	private string adUnitIdBanner       = "ca-app-pub-6904186947817626/6955984390";
+	private string adUnitIdInterstitial = "ca-app-pub-6904186947817626/8432717590";	
 	
 	public void requestBanner()
 	{

@@ -17,12 +17,26 @@ public class main : MonoBehaviour {
 	private bool over = false;
 	private AdMob admob = new AdMob();
 	private Controll controll = new Controll();
+	private float timeLastMessage;
+	private bool instructions = false;
+
+	private const string TWITTER_ADDRESS = "http://twitter.com/intent/tweet";
+	private const string TWEET_LANGUAGE = "en"; 
+
+	void ShareToTwitter (string textToDisplay)
+	{
+		Application.OpenURL(TWITTER_ADDRESS +
+			"?text=" + WWW.EscapeURL(textToDisplay) +
+			"&amp;lang=" + WWW.EscapeURL(TWEET_LANGUAGE));
+	}
 	
 	void Start () {
 		this.last_enemy = Time.timeSinceLevelLoad;
 		this.last_rock = Time.timeSinceLevelLoad;
+		this.timeLastMessage = 0;
 		this.admob.requestBanner();
 		this.admob.requestBannerInterstitial();
+		this.initScoresPosition();
 	}
 	
 	
@@ -33,6 +47,7 @@ public class main : MonoBehaviour {
 			this.controll.fire(transform,fire_speed);
 			this.createEnemy();
 			this.createRock();
+			this.clearMessages();
 		}
 	}
 	
@@ -89,29 +104,32 @@ public class main : MonoBehaviour {
 	
 	private void receibeAttack(Collider2D collider){
 		this.lives--;
-		if (lives > 0) {
-			GameObject text = GameObject.Find("lives");
-			text.GetComponent<GUIText>().text = lives + "";
-			transform.localScale = new Vector2(transform.localScale.x + 0.05f,transform.localScale.y + 0.05f);
-		} 
-		else {
+		this.hitMessage();
+		Handheld.Vibrate();
+		GameObject text = GameObject.Find("lives");
+		text.GetComponent<GUIText>().text = lives + "";
+		transform.localScale = new Vector2(transform.localScale.x + 0.05f,transform.localScale.y + 0.05f);
+		if (lives == 0) {
 			GetComponent<Rigidbody2D>().transform.rotation = new Quaternion(1,1,1,1);
 			GetComponent<Rigidbody2D>().velocity = new Vector2(10,15);
 			this.over = true;
 		}
-		
 	}
 	
 	void OnGUI()
 	{
+		GUIStyle instructions_style =  new GUIStyle();
+		instructions_style.fontSize = Screen.width/40;
+		instructions_style.normal.textColor = Color.white;
+
 		GUIStyle text_style =  new GUIStyle();
-		text_style.fontSize = Screen.width/20;
+		text_style.fontSize = Screen.width/30;
 		text_style.alignment = TextAnchor.MiddleCenter;
 		text_style.normal.textColor = Color.white;
 		
 		
 		GUIStyle button_style = new GUIStyle(GUI.skin.button);
-		button_style.fontSize = Screen.width/20;
+		button_style.fontSize = Screen.width/30;
 		
 		Texture2D left = (Texture2D)(Resources.Load( "left" ));
 		Texture2D right = (Texture2D)(Resources.Load( "right" ));
@@ -121,8 +139,17 @@ public class main : MonoBehaviour {
 			this.admob.showBanners();
 			int best_score = PlayerPrefs.GetInt( "best_score" );
 			int last_score = PlayerPrefs.GetInt( "last_score" );
-			
-			GUI.Box(new Rect (Screen.width/4,Screen.height/4 - 5, Screen.width/2 , Screen.height/2 ), "" );
+			if(this.instructions){
+				GUI.Box(new Rect (Screen.width/4,Screen.height/4 - 5, Screen.width/2 , Screen.height/2f ), "" );
+				GUI.Box(new Rect( Screen.width/2 - Screen.width/5,Screen.height/4,Screen.width/2 - Screen.width/6,Screen.height/6), "Move your phone to move your triangle  \n\r 'green' and press the screen to shoot. \n\rYou can kill red enemies, but you cant \n\r kill black ones, you can only dodge.",instructions_style );
+				if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/5 + (Screen.height/3) ,Screen.width/2 - Screen.width/6,Screen.height/8), "Back to menu",button_style )) 
+				{
+					this.instructions = false;
+				}
+			}
+			else
+			{
+			GUI.Box(new Rect (Screen.width/4,Screen.height/4 - 5, Screen.width/2 , Screen.height/1.5f ), "" );
 			GUI.Box(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4,Screen.width/2 - Screen.width/6,Screen.height/8), "Best: " + best_score + " Last: " + last_score, text_style );
 			if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4 + (Screen.height/8) ,Screen.width/2 - Screen.width/6,Screen.height/8), "Start Game",button_style )) 
 			{
@@ -131,6 +158,11 @@ public class main : MonoBehaviour {
 			if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4 + (Screen.height/8*2) + 20,Screen.width/2 - Screen.width/6,Screen.height/8), "Quit",button_style )) 
 			{
 				Application.Quit();
+			}
+			if( GUI.Button(new Rect( Screen.width/2 - Screen.width/6,Screen.height/4 + (Screen.height/8*2) + 120,Screen.width/2 - Screen.width/6,Screen.height/8), "Instructions",button_style )) 
+			{
+				this.instructions = true;
+			}
 			}
 		}
 		else
@@ -157,6 +189,49 @@ public class main : MonoBehaviour {
 			PlayerPrefs.SetInt( "best_score", points);
 		}
 		PlayerPrefs.SetInt( "last_score", points );
+	}
+
+	private void hitMessage()
+	{
+		GameObject message = GameObject.Find("message");
+		Vector3 messageNewPosition = Camera.main.transform.position;
+		messageNewPosition.x = messageNewPosition.x + Screen.width / 4500f;
+		messageNewPosition.y = messageNewPosition.y - Screen.height / 2500f;
+
+		message.transform.position = messageNewPosition;
+
+		GameObject lives = GameObject.Find("lives");
+
+		message.GetComponent<GUIText>().text = "HIT " + this.lives + " lives left";
+
+		this.timeLastMessage = Time.timeSinceLevelLoad;
+	}
+
+	private void clearMessages()
+	{
+		if(this.timeLastMessage + 1 < Time.timeSinceLevelLoad)
+		{
+			GameObject message = GameObject.Find("message");
+			message.transform.position = new Vector3(-1f,-1f,-1f);			
+		}
+	}
+
+	private void initScoresPosition()
+	{
+		GameObject points = GameObject.Find("points");
+		GameObject lives = GameObject.Find("lives");
+
+		Vector2 pointsNewPosition = Camera.main.transform.position;
+		Vector2 livesNewPosition = Camera.main.transform.position;
+
+		pointsNewPosition.y = pointsNewPosition.y -  (Screen.height / 14000f);
+		livesNewPosition.y = livesNewPosition.y - (Screen.height / 4900f);
+
+		pointsNewPosition.x = pointsNewPosition.x + (Screen.width / 12000f);
+		livesNewPosition.x = livesNewPosition.x + (Screen.width / 12000f);
+
+		points.gameObject.transform.position = pointsNewPosition;
+		lives.gameObject.transform.position = livesNewPosition;
 	}
 }
 
